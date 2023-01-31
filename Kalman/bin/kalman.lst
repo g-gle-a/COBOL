@@ -1,0 +1,123 @@
+GnuCOBOL 3.1.2.0        C:\Users\gerardo\Pro Fri Mar 12 17:25:13 2021  Page 0001
+
+LINE    PG/LN  A...B............................................................
+
+000001        ******************************************************************
+000002        * Author: Gerardo González Aguila
+000003        * Date:
+000004        * Purpose:
+000005        * Tectonics: cobc
+000006        ******************************************************************
+000007         IDENTIFICATION DIVISION.
+000008         PROGRAM-ID. Kalman.
+000009        *AUTHOR Gerardo González Aguilar
+000010         ENVIRONMENT DIVISION.
+000011         INPUT-OUTPUT SECTION.
+000012         FILE-CONTROL.
+000013         SELECT Data1 ASSIGN TO "Data1.DAT"
+000014          ORGANIZATION IS LINE SEQUENTIAL.
+000015         SELECT Data2 ASSIGN TO "Data2.DAT"
+000016          ORGANIZATION IS LINE SEQUENTIAL.
+000017         DATA DIVISION.
+000018         FILE SECTION.
+000019          FD Data1.
+000020             01 pair-value1       PIC X(12).
+000021          FD Data2.
+000022             01 pair-value2       PIC X(12).
+000023         WORKING-STORAGE SECTION.
+000024         01  800-WIN-USERNAME                PIC X(24)   VALUE "UNKNOWN".
+000025         01  800-WIN-USERPROFILE             PIC X(24)   VALUE "UNKNOWN".
+000026         01  800-WIN-USERDOMAIN              PIC X(24)   VALUE "UNKNOWN".
+000027         01  800-CURRENT-DATE.
+000028             05  800-CURRENT-DATE-YYYY       PIC X(04)   VALUE SPACES.
+000029             05  800-CURRENT-DATE-MM         PIC X(02)   VALUE SPACES.
+000030             05  800-CURRENT-DATE-DD         PIC X(02)   VALUE SPACES.
+000031             05  800-CURRENT-TIME-HH         PIC X(02)   VALUE SPACES.
+000032             05  800-CURRENT-TIME-MM         PIC X(02)   VALUE SPACES.
+000033             05  800-CURRENT-TIME-SS         PIC X(02)   VALUE SPACES.
+000034             05  FILLER                      PIC X(07)   VALUE SPACES.
+000035         01  Raw-value PIC 9(2)V9(3)  VALUE ZEROS.
+000036         01  Random-base PIC 9(2)V9(3)  VALUE ZEROS.
+000037         01  kalman-value PIC 9(2)V9(3)  VALUE ZEROS.
+000038         01  first1 PIC 9 VALUE ZERO.
+000039         01  Rnd-seed-t PIC 9(2)  VALUE ZEROS.
+000040         01  car-count PIC 9(2).
+000041         01  T PIC 9(2).99.
+000042
+000043
+000044         PROCEDURE DIVISION.
+000045         MAIN-PROCEDURE.
+000046
+000047             MOVE FUNCTION CURRENT-DATE  TO 800-CURRENT-DATE
+000048             DISPLAY "Kallman simulation by Gerardo Gonzalez"
+000049             Display '     Executed at ' 800-current-date-yyyy '/'
+000050               800-current-date-mm   '/' 800-current-date-dd   space
+000051               800-current-time-hh   ':' 800-current-time-mm   ':'
+000052               800-current-time-ss
+GnuCOBOL 3.1.2.0        C:\Users\gerardo\Pro Fri Mar 12 17:25:13 2021  Page 0002
+
+LINE    PG/LN  A...B............................................................
+
+000053             ACCEPT 800-WIN-USERNAME FROM ENVIRONMENT "USERNAME"
+000054             ACCEPT 800-WIN-USERDOMAIN FROM ENVIRONMENT "USERDOMAIN"
+000055             ACCEPT 800-WIN-USERPROFILE FROM ENVIRONMENT "USERPROFILE"
+000056
+000057             DISPLAY "USERNAME    = " 800-WIN-USERNAME
+000058             DISPLAY "USERPROFILE = " 800-WIN-USERPROFILE
+000059             DISPLAY "USERDOMAIN  = " 800-WIN-USERDOMAIN
+000060             call "SYSTEM" using z"systeminfo >> systeminfo.dat"
+000061
+000062             accept Rnd-seed-t from time
+000063             DISPLAY "Random Seed from timer : " Rnd-seed-t
+000064             OPEN OUTPUT Data1
+000065             COMPUTE Random-base = FUNCTION NUMVAL(800-current-time-ss)
+000066        *    DISPLAY "Random-Base = " Random-base
+000067             COMPUTE Raw-value = FUNCTION RANDOM () * Random-base
+000068        *    DISPLAY "Random-Value = " Raw-value
+000069             COMPUTE kalman-value = kalman-value *0.7 + Raw-value * 0.3
+000070
+000071             PERFORM 1000 TIMES
+000072
+000073                COMPUTE Raw-value = FUNCTION RANDOM () * Random-base
+000074        *    DISPLAY "Random-Value = " Raw-value
+000075                COMPUTE kalman-value = kalman-value *0.7 + Raw-value * 0.3
+000076                MOVE Raw-value  TO T
+000077                MOVE T to pair-value1
+000078               COMPUTE car-count = LENGTH OF T
+000079        *       MOVE 7 to car-count
+000080                ADD 1 to car-count
+000081                MOVE "," TO pair-value1(car-count:)
+000082
+000083                ADD 1 to car-count
+000084                MOVE kalman-value TO T
+000085                MOVE T to pair-value1(car-count:)
+000086
+000087                DISPLAY  "Generated and Calculated Values " pair-value1
+000088                WRITE pair-value1
+000089             END-PERFORM
+000090
+000091            CLOSE Data1
+000092             MOVE FUNCTION CURRENT-DATE  TO 800-CURRENT-DATE
+000093             DISPLAY 'Kalman Finisheded at '
+000094               800-current-date-yyyy '/'
+000095               800-current-date-mm   '/'
+000096               800-current-date-dd   space
+000097               800-current-time-hh   ':'
+000098               800-current-time-mm   ':'
+000099               800-current-time-ss
+000100
+000101         STOP RUN.
+000102         END PROGRAM Kalman.
+000103
+000104        ***COMPUTE RANDOM-VALUE = FUNCTION RANDOM (1) * 100 + 1
+GnuCOBOL 3.1.2.0        C:\Users\gerardo\Pro Fri Mar 12 17:25:13 2021  Page 0003
+
+LINE    PG/LN  A...B............................................................
+
+000105  *     ***      procedure division.
+000106        ***   call "system" using z"dir c:\|more"  ("CALL "SYSTEM" USING c
+000107        ***   goback.
+
+
+0 warnings in compilation group
+0 errors in compilation group
